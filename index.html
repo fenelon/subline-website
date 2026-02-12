@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subline — Transcribe videos and meetings, right on your Mac</title>
+  <meta name="description" content="Generate subtitles, transcribe meetings with speaker labels, and convert any audio to text. AI-powered, GPU-accelerated, runs locally on your Mac. No cloud, no API keys.">
+  <link rel="icon" type="image/png" href="img/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+    :root {
+      --bg: #0a0a0a;
+      --bg-raised: #141414;
+      --bg-subtle: #1a1a1a;
+      --border: #252525;
+      --text: #f0f0f0;
+      --text-muted: #888;
+      --text-dim: #555;
+      --accent: #c0c0c0;
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-body: 'Outfit', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* --- Noise overlay --- */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* === HERO === */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      padding: 80px 32px;
+      background: radial-gradient(ellipse 60% 50% at 50% 40%, #1a1a1a 0%, var(--bg) 100%);
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 80px;
+      background: linear-gradient(to bottom, transparent, var(--border));
+    }
+
+    .hero-icon {
+      width: 128px;
+      height: 128px;
+      border-radius: 28px;
+      margin-bottom: 40px;
+      animation: float-in 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+    }
+
+    @keyframes float-in {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: clamp(3rem, 7vw, 5rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      animation: fade-up 0.8s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-tagline {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin-bottom: 48px;
+      animation: fade-up 0.8s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fade-up 0.8s 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--text);
+      color: var(--bg);
+    }
+    .btn-primary:hover {
+      background: #fff;
+      box-shadow: 0 0 30px rgba(255,255,255,0.1);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: #444;
+    }
+
+    .hero-version {
+      margin-top: 32px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      animation: fade-up 0.8s 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* === ABOUT === */
+    section {
+      padding: 100px 0;
+    }
+
+    .about {
+      border-top: 1px solid var(--border);
+    }
+
+    .about-text {
+      font-size: 1.4rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      max-width: 640px;
+    }
+
+    .about-text strong {
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    /* === FEATURES === */
+    .features {
+      border-top: 1px solid var(--border);
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      margin-bottom: 48px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .feature {
+      background: var(--bg);
+      padding: 32px;
+    }
+
+    .feature-icon {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 14px;
+      display: block;
+      color: var(--text-muted);
+    }
+    .feature-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .feature h3 {
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .feature p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* === SCREENSHOTS === */
+    .screenshots {
+      border-top: 1px solid var(--border);
+    }
+
+    .screenshot-window {
+      margin-bottom: 24px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .screenshot-body {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .screenshot-body img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .screenshots-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* === INSTALL === */
+    .install {
+      border-top: 1px solid var(--border);
+    }
+
+    .install h2 {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 400;
+      margin-bottom: 12px;
+    }
+
+    .install-sub {
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      font-size: 1.05rem;
+    }
+
+    .install-methods {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .install-method {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+    }
+
+    .install-method-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+    }
+
+    .install-command {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+
+    .install-command:hover {
+      border-color: #444;
+    }
+
+    .install-command code {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .install-command code .prompt {
+      color: var(--text-dim);
+      user-select: none;
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+      font-family: var(--font-body);
+    }
+    .copy-btn:hover { color: var(--text); }
+
+    .install-method p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    .install-method p a {
+      color: var(--text);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: var(--text-dim);
+      transition: text-decoration-color 0.2s;
+    }
+
+    .install-method p a:hover {
+      text-decoration-color: var(--text);
+    }
+
+    .install-note {
+      margin-top: 32px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* === FOOTER === */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    footer a:hover { color: var(--text); }
+
+    .footer-right {
+      display: flex;
+      gap: 24px;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 640px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .screenshots-row {
+        grid-template-columns: 1fr;
+      }
+      .hero { padding: 60px 24px; min-height: auto; padding-top: 120px; }
+      .hero::after { display: none; }
+      .container { padding: 0 20px; }
+      section { padding: 64px 0; }
+      .install h2 { font-size: 1.8rem; }
+      .install-method { padding: 20px 24px; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      .footer-right { gap: 16px; }
+    }
+
+    /* === SCROLL ANIMATIONS === */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <img src="img/icon.png" alt="Subline" class="hero-icon" width="128" height="128">
+    <h1>Transcribe<br><em>anything.</em></h1>
+    <p class="hero-tagline">
+      Subtitles for videos. Transcripts from meetings. Speaker-labeled notes
+      from recordings. All powered by AI, all running locally on your Mac.
+    </p>
+    <div class="hero-actions">
+      <a href="#install" class="btn btn-primary">Install with Homebrew</a>
+      <a href="https://github.com/fenelon/subline-releases/releases/latest" class="btn btn-ghost">Download</a>
+    </div>
+    <p class="hero-version">v0.3.4 &middot; macOS 13+</p>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about">
+    <div class="container fade-in">
+      <p class="about-text">
+        Subline uses <strong>OpenAI's Whisper</strong> to transcribe speech
+        with remarkable accuracy across <strong>99 languages</strong>. Generate
+        subtitles for videos, transcribe meeting recordings with
+        <strong>speaker identification</strong>, or convert any audio to text.
+        Runs natively on Apple Silicon with <strong>Metal GPU acceleration</strong>.
+        No cloud, no API keys, no subscriptions.
+      </p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="container">
+      <p class="section-label fade-in">Features</p>
+      <div class="features-grid fade-in">
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+          <h3>99 languages</h3>
+          <p>Auto-detects the spoken language or set it manually. From English to Urdu, Whisper handles it.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+          <h3>GPU accelerated</h3>
+          <p>Leverages Metal on Apple Silicon for fast inference. A 1-hour video transcribes in minutes.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <h3>Speaker diarization</h3>
+          <p>Identifies who said what. Supports 2 to 5 speakers with automatic voice separation.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+          <h3>Drag and drop</h3>
+          <p>Drop video or audio files onto the window. Batch process entire folders at once.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+          <h3>SRT, VTT, TXT</h3>
+          <p>Output in the format you need. SRT and VTT include timestamps for video players.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <h3>Fully local</h3>
+          <p>Everything runs on your machine. Your audio never leaves your computer.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREENSHOTS -->
+  <section class="screenshots">
+    <div class="container">
+      <p class="section-label fade-in">App</p>
+      <div class="screenshot-window fade-in">
+        <div class="screenshot-body">
+          <img src="img/screenshot-main.png" alt="Subline — drag and drop interface with model, language, format and speaker settings" loading="lazy">
+        </div>
+      </div>
+      <div class="screenshots-row fade-in">
+        <div class="screenshot-window">
+          <div class="screenshot-body">
+            <img src="img/screenshot-settings.png" alt="Speaker diarization settings with dropdown" loading="lazy">
+          </div>
+        </div>
+        <div class="screenshot-window">
+          <div class="screenshot-body">
+            <img src="img/screenshot-transcribing.png" alt="Transcription in progress with ETA" loading="lazy">
+          </div>
+        </div>
+      </div>
+      <div class="screenshots-row fade-in">
+        <div class="screenshot-window">
+          <div class="screenshot-body">
+            <img src="img/screenshot-tracks.png" alt="Multi-track audio selection dialog" loading="lazy">
+          </div>
+        </div>
+        <div class="screenshot-window">
+          <div class="screenshot-body">
+            <img src="img/screenshot-diarization.png" alt="Parallel transcription and speaker identification" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section class="install" id="install">
+    <div class="container">
+      <h2 class="fade-in">Get Subline</h2>
+      <p class="install-sub fade-in">macOS 13 or later. Apple Silicon and Intel.</p>
+
+      <div class="install-methods">
+        <div class="install-method fade-in">
+          <p class="install-method-label">Homebrew (recommended)</p>
+          <div class="install-command" onclick="copyCommand(this, 'brew install fenelon/tap/subline')" role="button" tabindex="0" aria-label="Copy install command">
+            <code><span class="prompt">$</span> brew install fenelon/tap/subline</code>
+            <button class="copy-btn" aria-label="Copy">Copy</button>
+          </div>
+          <p>Installs both the CLI tool and the GUI app. Updates with <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text)">brew upgrade</code>.</p>
+        </div>
+
+        <div class="install-method fade-in">
+          <p class="install-method-label">Direct download</p>
+          <p>
+            Grab the latest <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text)">.dmg</code> from
+            <a href="https://github.com/fenelon/subline-releases/releases/latest">GitHub Releases</a>.
+            Drag Subline into your Applications folder.
+          </p>
+        </div>
+
+        <div class="install-method fade-in">
+          <p class="install-method-label">CLI only</p>
+          <div class="install-command" onclick="copyCommand(this, 'brew install fenelon/tap/subline && subline video.mp4')" role="button" tabindex="0" aria-label="Copy CLI command">
+            <code><span class="prompt">$</span> subline video.mp4</code>
+            <button class="copy-btn" aria-label="Copy">Copy</button>
+          </div>
+          <p>The same Homebrew install includes the <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text)">subline</code> CLI. Supports batch processing, piping, and scripting.</p>
+        </div>
+      </div>
+
+      <p class="install-note fade-in">
+        Subline downloads the Whisper model (~500 MB) on first run.
+        Speaker diarization models are downloaded separately when needed.
+        Everything is cached locally.
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+      <span style="font-size:0.85rem;color:var(--text-dim)">Built by <a href="https://github.com/fenelon" style="color:var(--text-muted);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-muted)'">Ellin Pino</a></span>
+      <div class="footer-right">
+        <a href="https://github.com/fenelon/subline-releases/releases">Releases</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll-triggered fade-in
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Copy command to clipboard
+    function copyCommand(el, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = el.querySelector('.copy-btn');
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+  </script>
+
+</body>
+</html>
