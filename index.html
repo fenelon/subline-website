@@ -287,6 +287,78 @@
       gap: 24px;
     }
 
+    /* === CLI === */
+    .cli {
+      border-top: 1px solid var(--border);
+    }
+
+    .cli-block {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin-bottom: 24px;
+    }
+
+    .cli-block pre {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .cli-dim { color: var(--text-dim); }
+    .cli-arg { color: var(--text-muted); }
+
+    .cli-flags {
+      margin-bottom: 32px;
+    }
+
+    .cli-flags table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .cli-flags td {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+      vertical-align: baseline;
+    }
+
+    .cli-flags td:first-child {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text);
+      white-space: nowrap;
+      padding-right: 32px;
+      width: 1%;
+    }
+
+    .cli-flags td:last-child {
+      color: var(--text-muted);
+    }
+
+    .cli-default {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      background: var(--bg-subtle);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 4px;
+    }
+
+    .cli-examples {
+      margin-top: 8px;
+    }
+
+    .cli-examples .install-method-label {
+      margin-bottom: 14px;
+    }
+
     /* === INSTALL === */
     .install {
       border-top: 1px solid var(--border);
@@ -548,6 +620,44 @@
           <div class="screenshot-body">
             <img src="img/screenshot-diarization.png" alt="Parallel transcription and speaker identification" loading="lazy">
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLI -->
+  <section class="cli">
+    <div class="container">
+      <p class="section-label fade-in">CLI</p>
+      <div class="cli-block fade-in">
+        <pre><code><span class="cli-dim">$</span> subline <span class="cli-arg">[options]</span> <span class="cli-arg">&lt;path...&gt;</span></code></pre>
+      </div>
+      <div class="cli-flags fade-in">
+        <table>
+          <tbody>
+            <tr><td><code>-m, --model</code></td><td>Whisper model: tiny, base, small, medium, turbo, large <span class="cli-default">turbo</span></td></tr>
+            <tr><td><code>-l, --language</code></td><td>Language code — auto-detects if omitted</td></tr>
+            <tr><td><code>-f, --format</code></td><td>Output format: srt, vtt, or txt <span class="cli-default">srt</span></td></tr>
+            <tr><td><code>-S, --speakers</code></td><td>Number of speakers — enables diarization, implies txt</td></tr>
+            <tr><td><code>-p, --prompt</code></td><td>Initial prompt for Whisper (vocabulary, punctuation context)</td></tr>
+            <tr><td><code>-a, --audio-track</code></td><td>Audio stream index <span class="cli-default">auto</span></td></tr>
+            <tr><td><code>-o, --output-dir</code></td><td>Directory to write output files <span class="cli-default">next to source</span></td></tr>
+            <tr><td><code>-s, --skip-existing</code></td><td>Skip files that already have a subtitle file</td></tr>
+            <tr><td><code>-v, --verbose</code></td><td>Show detailed model loading and engine output</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cli-examples fade-in">
+        <p class="install-method-label">Examples</p>
+        <div class="cli-block">
+          <pre><code><span class="cli-dim"># Transcribe a video — generates video.srt</span>
+<span class="cli-dim">$</span> subline video.mp4
+
+<span class="cli-dim"># Meeting transcript with 3 speakers</span>
+<span class="cli-dim">$</span> subline --speakers 3 meeting.mp3
+
+<span class="cli-dim"># Batch process a folder in Spanish</span>
+<span class="cli-dim">$</span> subline --language es ~/Videos/</code></pre>
         </div>
       </div>
     </div>
