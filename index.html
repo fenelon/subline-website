@@ -95,7 +95,7 @@
       width: 128px;
       height: 128px;
       border-radius: 28px;
-      margin-bottom: 40px;
+      margin-bottom: 16px;
       animation: float-in 1s cubic-bezier(0.16, 1, 0.3, 1) both;
       filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
     }
@@ -105,27 +105,26 @@
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    .hero h1 {
+    .hero-appname {
       font-family: var(--font-display);
       font-weight: 400;
-      font-size: clamp(3rem, 7vw, 5rem);
-      line-height: 1.05;
+      font-size: clamp(3rem, 7vw, 4.5rem);
+      color: var(--text);
+      line-height: 1.1;
       letter-spacing: -0.02em;
       margin-bottom: 20px;
-      animation: fade-up 0.8s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .hero h1 em {
-      font-style: italic;
-      color: var(--accent);
+      animation: fade-up 0.8s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     .hero-tagline {
-      font-size: 1.15rem;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.6rem;
       color: var(--text-muted);
       max-width: 480px;
+      line-height: 1.5;
       margin-bottom: 48px;
-      animation: fade-up 0.8s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: fade-up 0.8s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     @keyframes fade-up {
@@ -533,16 +532,15 @@
   <!-- HERO -->
   <section class="hero">
     <img src="img/icon.png" alt="Subline" class="hero-icon" width="128" height="128">
-    <h1>Transcribe<br><em>anything.</em></h1>
+    <h1 class="hero-appname">Subline</h1>
     <p class="hero-tagline">
-      Subtitles for videos. Transcripts from meetings. Speaker-labeled notes
-      from recordings. All powered by AI, all running locally on your Mac.
+      Generate subtitles and transcribe meetings.<br>Privately on your Mac.
     </p>
     <div class="hero-actions">
       <a href="#install" class="btn btn-primary">Install with Homebrew</a>
       <a href="https://github.com/fenelon/subline-releases/releases/latest" class="btn btn-ghost">Download</a>
     </div>
-    <p class="hero-version">v0.3.4 &middot; macOS 13+</p>
+    <p class="hero-version">v0.3.5 &middot; macOS 13+</p>
   </section>
 
   <!-- ABOUT -->
@@ -691,9 +689,9 @@
         <div class="install-method fade-in">
           <p class="install-method-label">Direct download</p>
           <p>
-            Grab the latest <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text)">.dmg</code> from
+            Download the latest <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text)">.zip</code> from
             <a href="https://github.com/fenelon/subline-releases/releases/latest">GitHub Releases</a>.
-            Drag Subline into your Applications folder.
+            Unzip and move Subline to your Applications folder.
           </p>
         </div>
 
