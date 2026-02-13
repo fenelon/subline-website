@@ -678,12 +678,21 @@
 
       <div class="install-methods">
         <div class="install-method fade-in">
-          <p class="install-method-label">Homebrew (recommended)</p>
+          <p class="install-method-label">Homebrew — GUI app (recommended)</p>
+          <div class="install-command" onclick="copyCommand(this, 'brew install --cask fenelon/tap/subline')" role="button" tabindex="0" aria-label="Copy install command">
+            <code><span class="prompt">$</span> brew install --cask fenelon/tap/subline</code>
+            <button class="copy-btn" aria-label="Copy">Copy</button>
+          </div>
+          <p>Installs the Subline app. Updates with <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text)">brew upgrade --cask</code>. Don't have Homebrew? <a href="https://brew.sh">Install it first</a>.</p>
+        </div>
+
+        <div class="install-method fade-in">
+          <p class="install-method-label">Homebrew — CLI only</p>
           <div class="install-command" onclick="copyCommand(this, 'brew install fenelon/tap/subline')" role="button" tabindex="0" aria-label="Copy install command">
             <code><span class="prompt">$</span> brew install fenelon/tap/subline</code>
             <button class="copy-btn" aria-label="Copy">Copy</button>
           </div>
-          <p>Installs both the CLI tool and the GUI app. Updates with <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text)">brew upgrade</code>. Don't have Homebrew? <a href="https://brew.sh">Install it first</a>.</p>
+          <p>Installs the <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text)">subline</code> command-line tool. Supports batch processing, piping, and scripting.</p>
         </div>
 
         <div class="install-method fade-in">
@@ -693,15 +702,6 @@
             <a href="https://github.com/fenelon/subline-releases/releases/latest">GitHub Releases</a>.
             Unzip and move Subline to your Applications folder.
           </p>
-        </div>
-
-        <div class="install-method fade-in">
-          <p class="install-method-label">CLI only</p>
-          <div class="install-command" onclick="copyCommand(this, 'brew install fenelon/tap/subline && subline video.mp4')" role="button" tabindex="0" aria-label="Copy CLI command">
-            <code><span class="prompt">$</span> subline video.mp4</code>
-            <button class="copy-btn" aria-label="Copy">Copy</button>
-          </div>
-          <p>The same Homebrew install includes the <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text)">subline</code> CLI. Supports batch processing, piping, and scripting.</p>
         </div>
       </div>
 
